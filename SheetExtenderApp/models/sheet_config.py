@@ -10,16 +10,15 @@ from typing import List
 
 @dataclass(slots=True)
 class SheetConfig:
-    """
-    Represents one worksheet configuration read from the
-    'pranay_extension_config' sheet.
-    """
-
     sheet_name: str
     template_start_row: int
     rows_per_material: int
     managed_columns: List[int]
     preserve_existing: bool
+
+    @property
+    def first_generated_row(self) -> int:
+        return self.template_start_row + 1 # Much cleaner
 
 
 @dataclass(slots=True)
