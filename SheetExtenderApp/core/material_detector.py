@@ -1,0 +1,1 @@
+# Detect previous material count

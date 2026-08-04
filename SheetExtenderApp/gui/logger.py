@@ -1,0 +1,1 @@
+# GUI log window helper
