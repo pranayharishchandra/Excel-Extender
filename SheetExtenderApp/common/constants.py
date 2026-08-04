@@ -92,3 +92,19 @@ ACTION_CLEAR_AND_EXTEND = "CLEAR_AND_EXTEND"
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 ASSETS_DIR = PROJECT_ROOT / "assets"
+
+
+# ============================================================================
+# Configuration Sheet
+# ============================================================================
+
+CONFIG_SHEET_NAME = "pranay_extension_config"
+
+HEADER_SHEET_NAME = "Sheet Name"
+HEADER_TEMPLATE_ROW = "Template Start Row"
+HEADER_ROWS_PER_MATERIAL = "Rows per Material"
+HEADER_MANAGED_COLUMNS = "Managed Columns"
+HEADER_PRESERVE_EXISTING = "Preserve Existing"
+
+CONFIG_HEADER_ROW = 1
+CONFIG_FIRST_DATA_ROW = 2
