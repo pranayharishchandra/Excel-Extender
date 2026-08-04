@@ -1,0 +1,718 @@
+I want to build a production-quality desktop application in Python for extending Excel formulas in SAP material creation templates.
+
+This is NOT just a Python script.
+Treat it like a real desktop application with clean architecture, modular code, and an extensible design.
+
+==================================================
+PROJECT GOAL
+==================================================
+
+I have SAP material creation Excel workbooks.
+
+The workbook contains:
+
+- Sheet1 (user input)
+- Multiple formula sheets (Sheet2, Sheet3, Sheet4, PIR, etc.)
+
+The user ONLY edits Sheet1.
+
+All other sheets contain formulas referencing Sheet1.
+
+Originally these templates were created for only around 10 materials.
+
+I have already converted every formula into fully draggable formulas using Excel functions such as:
+
+- ROW()
+- MOD()
+- INT()
+- INDEX()
+- etc.
+
+The formulas already behave exactly like Excel AutoFill.
+
+The Python application's only responsibility is extending those formulas to any number of materials.
+
+Never modify the formulas themselves.
+
+==================================================
+TECHNOLOGY
+==================================================
+
+Python
+
+openpyxl
+
+CustomTkinter
+
+Use
+
+from openpyxl.formula.translate import Translator
+
+for all formula translation.
+
+Never manipulate formulas manually.
+
+Never use regex.
+
+Never replace row numbers yourself.
+
+Always use Translator.
+
+==================================================
+APPLICATION TYPE
+==================================================
+
+Desktop GUI Application
+
+NOT command line.
+
+==================================================
+GUI LAYOUT
+==================================================
+
+--------------------------------------------------
+
+Excel Formula Extension Engine
+
+--------------------------------------------------
+
+Workbook
+
+[ Path Textbox ]
+
+[ Browse ]
+
+Previous Materials:
+10
+
+New Materials:
+
+[ 200 ]
+
+--------------------------------------------------
+
+Sheets
+
+☑ Sheet2
+
+☑ Sheet3
+
+☑ Sheet4
+
+☑ Sheet5
+
+☑ PIR
+
+[ Select All ]
+
+[ Select None ]
+
+--------------------------------------------------
+
+Actions
+
+[ Clear ]
+
+[ Extend ]
+
+[ Clear + Extend ]
+
+--------------------------------------------------
+
+Output
+
+☑ Save to Original Workbook
+
+☐ Save As
+
+Output Path
+
+[ textbox ]
+
+[ Browse ]
+
+If Save As is selected
+
+The user chooses the output filename.
+
+Example
+
+Master_200Materials.xlsx
+
+The default location should be the same folder as the selected workbook.
+
+--------------------------------------------------
+
+Progress
+
+██████████░░░░░░░░░░░░
+
+Current Sheet
+
+Sheet3
+
+--------------------------------------------------
+
+Logs
+
+[ scrolling log window ]
+
+Example
+
+10:42 Workbook Loaded
+
+10:42 Config Loaded
+
+10:42 Previous Materials Detected : 10
+
+10:42 Clearing Sheet2...
+
+10:42 Extending Sheet2...
+
+10:42 Sheet2 Completed
+
+10:42 Saving Workbook...
+
+10:42 Finished Successfully
+
+--------------------------------------------------
+
+==================================================
+WORKFLOW
+==================================================
+
+User selects workbook.
+
+↓
+
+Application opens workbook.
+
+↓
+
+Reads configuration sheet.
+
+↓
+
+Detects previous material count from Sheet1.
+
+↓
+
+Populates sheet list automatically.
+
+↓
+
+User enters new material count.
+
+↓
+
+User selects which sheets to process.
+
+↓
+
+User chooses one action
+
+Clear
+
+or
+
+Extend
+
+or
+
+Clear + Extend
+
+↓
+
+Workbook saved.
+
+==================================================
+CONFIGURATION SHEET
+==================================================
+
+Inside every workbook there is a sheet
+
+pranay_extension_config
+
+The configuration sheet contains ONLY permanent worksheet metadata.
+
+Do NOT store GUI state here.
+
+Remove the Enabled checkbox entirely.
+
+Configuration should contain
+
+Sheet Name
+
+Template Start Row
+
+Rows per Material
+
+Managed Columns
+
+Preserve Existing
+
+Example
+
+Sheet Name | Template Row | Rows per Material | Managed Columns | Preserve Existing
+
+Sheet2 | 2 | 36 | B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V | No
+
+Sheet3 | 2 | 22 | B,C,D,E,F,G | No
+
+Sheet4 | 2 | 28 | B,C,D | Yes
+
+Sheet5 | 2 | 2 | B,C,D,E,F,G,H | No
+
+PIR | 2 | 6 | B,C,D,E,F,G,H,I,J,K,L,M,N | No
+
+==================================================
+CONFIG RULES
+==================================================
+
+Everything must come from the configuration sheet.
+
+Never hardcode
+
+worksheet names
+
+columns
+
+row counts
+
+rows per material
+
+==================================================
+SHEET1
+==================================================
+
+Sheet1 is the source of truth.
+
+One row represents one material.
+
+Example
+
+Header
+
+Material1
+
+Material2
+
+Material3
+
+Detect previous material count automatically.
+
+Do NOT use max_row because formatting may increase it.
+
+Instead find the last non-empty material row.
+
+==================================================
+FORMULA GENERATION
+==================================================
+
+Suppose
+
+Template Start Row = 2
+
+Rows per Material = 36
+
+Old Material Count = 10
+
+New Material Count = 200
+
+Calculate
+
+old_last_row
+
+template_start_row
+
++
+
+(old_materials × rows_per_material)
+
+-
+
+1
+
+Calculate
+
+new_last_row
+
+template_start_row
+
++
+
+(new_materials × rows_per_material)
+
+-
+
+1
+
+==================================================
+CLEAR
+==================================================
+
+If user presses
+
+Clear
+
+Only clear
+
+Managed Columns
+
+Row 3
+
+↓
+
+old_last_row
+
+Never clear row 2.
+
+Never clear unmanaged columns.
+
+==================================================
+EXTEND
+==================================================
+
+If user presses
+
+Extend
+
+Generate formulas
+
+Row 3
+
+↓
+
+new_last_row
+
+using Translator.
+
+Do not clear anything.
+
+==================================================
+CLEAR + EXTEND
+==================================================
+
+If user presses
+
+Clear + Extend
+
+Clear first.
+
+Then generate formulas.
+
+==================================================
+MANAGED COLUMNS
+==================================================
+
+Managed Columns are a whitelist.
+
+Example
+
+B,C,D,F,G
+
+Automation may
+
+Clear
+
+Generate formulas
+
+Only inside these columns.
+
+Never touch any other column.
+
+==================================================
+TEMPLATE ROW
+==================================================
+
+Template row
+
+Usually row 2
+
+It is sacred.
+
+Never modify.
+
+Never overwrite.
+
+Never clear.
+
+Always use it as the source row.
+
+==================================================
+FORMULA COPYING
+==================================================
+
+For every managed column
+
+Read template formula
+
+Translate using
+
+Translator
+
+Assign translated formula.
+
+If the template contains a constant instead of a formula
+
+Copy the value.
+
+==================================================
+FORMATTING
+==================================================
+
+Never copy
+
+Fonts
+
+Borders
+
+Styles
+
+Fills
+
+Comments
+
+Hyperlinks
+
+Row Heights
+
+Column Widths
+
+Number Formats
+
+Workbook formatting already exists.
+
+Only write cell values/formulas.
+
+==================================================
+SAFETY
+==================================================
+
+Never
+
+Delete rows
+
+Insert rows
+
+Delete columns
+
+Insert columns
+
+Modify template row
+
+Touch unmanaged columns
+
+Hardcode worksheet names
+
+Hardcode columns
+
+==================================================
+ARCHITECTURE
+==================================================
+
+Create a clean architecture.
+
+Suggested structure
+
+excel_formula_extension/
+
+main.py
+
+gui.py
+
+formula_engine.py
+
+sheet_processor.py
+
+config_reader.py
+
+workbook_utils.py
+
+column_utils.py
+
+models.py
+
+constants.py
+
+requirements.txt
+
+Separate GUI from business logic.
+
+GUI should know almost nothing about Excel.
+
+GUI simply creates
+
+FormulaExtensionEngine(...)
+
+engine.run()
+
+==================================================
+ENGINE
+==================================================
+
+Create a FormulaExtensionEngine class.
+
+Workflow
+
+Load Workbook
+
+↓
+
+Read Configuration
+
+↓
+
+Detect Previous Materials
+
+↓
+
+Process Selected Sheets
+
+↓
+
+Save Workbook
+
+==================================================
+DATACLASSES
+==================================================
+
+Use dataclasses.
+
+Example
+
+SheetConfig
+
+Store managed columns internally as integer indexes instead of letters.
+
+==================================================
+VALIDATION
+==================================================
+
+Validate configuration before processing.
+
+Verify
+
+Worksheet exists
+
+Managed columns valid
+
+Rows per material > 0
+
+Template row valid
+
+No duplicate sheets
+
+Configuration errors should appear in logs.
+
+==================================================
+PROGRESS BAR
+==================================================
+
+Progress should be based on selected sheets.
+
+Not rows.
+
+Example
+
+Sheet2
+
+20%
+
+Sheet3
+
+40%
+
+Sheet4
+
+60%
+
+Sheet5
+
+80%
+
+PIR
+
+100%
+
+Also display current sheet name.
+
+==================================================
+LOGGING
+==================================================
+
+Create a scrolling log console.
+
+Every operation should be logged with timestamps.
+
+Examples
+
+Workbook Loaded
+
+Configuration Loaded
+
+Previous Materials Detected
+
+Clearing Sheet2
+
+Extending Sheet2
+
+Saving Workbook
+
+Finished Successfully
+
+Errors should also appear in logs.
+
+==================================================
+OUTPUT
+==================================================
+
+User can choose
+
+Save to Original Workbook
+
+or
+
+Save As
+
+If Save As is selected
+
+Default output location should be the same directory as the selected workbook.
+
+==================================================
+CODE QUALITY
+==================================================
+
+Production quality.
+
+Use
+
+Type hints
+
+Dataclasses
+
+Small reusable functions
+
+Clear separation of responsibilities
+
+No duplicated logic
+
+Meaningful names
+
+Minimal but useful comments
+
+Easy future extensibility
+
+==================================================
+FUTURE GOAL
+==================================================
+
+The engine should be generic.
+
+Adding a new worksheet should only require adding one row to
+
+pranay_extension_config
+
+No Python code should need modification.
+
+Design the application like a professional desktop tool, not a one-off automation script.

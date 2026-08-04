@@ -1,0 +1,437 @@
+# Excel Formula Extension Engine (Python + openpyxl)
+
+I am building an Excel automation tool using **Python + openpyxl**.
+
+The goal is to automatically extend Excel formulas for SAP material creation templates without hardcoding anything.
+
+I want this project to be written in a **clean, modular, production-quality** manner.
+
+---
+
+# Overall Goal
+
+I have an Excel workbook used for SAP material creation.
+
+The workbook contains:
+
+* **Sheet1** (input sheet)
+* Multiple formula sheets (Sheet2, Sheet3, Sheet4, PIR, etc.)
+
+The user only enters data into **Sheet1**.
+
+All remaining sheets contain formulas that reference Sheet1.
+
+Originally these sheets were built for only **10 materials**.
+
+I have already converted every formula into **fully draggable formulas** using techniques such as:
+
+* `ROW()`
+* `MOD()`
+* `INT()`
+* `INDEX()`
+* etc.
+
+These formulas already behave exactly like Excel drag-fill.
+
+The Python program's only responsibility is to extend those formulas to any number of materials.
+
+---
+
+# Desired Workflow
+
+When the program starts:
+
+```text
+Enter workbook path:
+C:\Templates\Master.xlsx
+
+Enter number of materials:
+200
+```
+
+The program should automatically extend every configured sheet for **200 materials**.
+
+Example:
+
+If a sheet requires **22 rows per material**
+
+```
+200 × 22 = 4400 rows
+```
+
+then formulas should exist from
+
+```
+row 2
+↓
+
+row 4401
+```
+
+---
+
+# Configuration Sheet
+
+Inside the workbook there will be a sheet called
+
+```
+pranay_extension_config
+```
+
+Nothing should be hardcoded.
+
+Everything must come from this sheet.
+
+Example:
+
+| Enabled | Sheet Name | Template Start Row | Rows per Material | Managed Columns                           | Preserve Existing |
+| ------- | ---------- | -----------------: | ----------------: | ----------------------------------------- | ----------------- |
+| ☑       | Sheet2     |                  2 |                36 | B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V | ☐                 |
+| ☑       | Sheet3     |                  2 |                22 | B,C,D,E,F,G                               | ☐                 |
+| ☑       | Sheet4     |                  2 |                28 | B,C,D                                     | ☑                 |
+| ☑       | Sheet5     |                  2 |                 2 | B,C,D,E,F,G,H                             | ☐                 |
+| ☑       | PIR        |                  2 |                 6 | B,C,D,E,F,G,H,I,J,K,L,M,N                 | ☐                 |
+
+---
+
+# Meaning of Each Column
+
+## Enabled
+
+If unchecked
+
+Skip the sheet completely.
+
+Do NOT
+
+* clear anything
+* generate formulas
+* modify anything
+
+Simply continue to the next configuration row.
+
+---
+
+## Sheet Name
+
+Worksheet name inside the workbook.
+
+---
+
+## Template Start Row
+
+Normally
+
+```
+2
+```
+
+This row contains the master formulas.
+
+This row is sacred.
+
+It must NEVER be modified.
+
+Never cleared.
+
+Never overwritten.
+
+Always used as the template.
+
+---
+
+## Rows per Material
+
+Example
+
+```
+36
+```
+
+means
+
+Material 1
+
+```
+Rows 2-37
+```
+
+Material 2
+
+```
+Rows 38-73
+```
+
+etc.
+
+---
+
+## Managed Columns
+
+Example
+
+```
+B,C,D,G,H,N
+```
+
+This is extremely important.
+
+These are **the only columns the automation is ever allowed to touch.**
+
+This means:
+
+Allowed
+
+* clear cells
+* generate formulas
+
+Not allowed
+
+* modify any other columns
+* clear any other columns
+* overwrite anything outside these columns
+
+Treat this as a whitelist.
+
+If a column is not listed here, pretend it does not exist.
+
+---
+
+## Preserve Existing
+
+Unchecked
+
+Clear old generated formulas before creating new ones.
+
+Checked
+
+Do NOT clear.
+
+Simply generate formulas where required.
+
+---
+
+# Detecting Previous Material Count
+
+Do NOT store previous material count inside the config sheet.
+
+Instead
+
+Use **Sheet1** as the source of truth.
+
+Sheet1 contains one row per material.
+
+Example
+
+```
+Row1 Header
+
+Row2 Material1
+
+Row3 Material2
+
+Row4 Material3
+```
+
+If the last used row is
+
+```
+301
+```
+
+then previous material count is
+
+```
+300
+```
+
+Use this value when calculating how much old data needs to be cleared.
+
+---
+
+# Formula Generation Logic
+
+For every enabled sheet
+
+Calculate
+
+```
+old_last_row =
+template_start_row +
+(previous_materials × rows_per_material) - 1
+```
+
+Calculate
+
+```
+new_last_row =
+template_start_row +
+(new_materials × rows_per_material) - 1
+```
+
+If Preserve Existing is OFF
+
+Clear only
+
+```
+Managed Columns
+
+Row 3
+
+↓
+
+old_last_row
+```
+
+Never clear row 2.
+
+Then generate formulas
+
+```
+Managed Columns
+
+Row 3
+
+↓
+
+new_last_row
+```
+
+using the formulas in row 2.
+
+---
+
+# Formula Translation
+
+The formulas must behave **exactly like dragging the Excel fill handle**.
+
+Use
+
+```python
+from openpyxl.formula.translate import Translator
+```
+
+For every generated cell
+
+```python
+Translator(
+    template_formula,
+    origin="B2"
+).translate_formula("B3")
+```
+
+Do NOT manipulate formulas manually.
+
+Do NOT use regex.
+
+Do NOT replace row numbers yourself.
+
+Always use Translator.
+
+---
+
+# Formatting Rules
+
+Do NOT
+
+* copy colours
+* copy fonts
+* copy borders
+* copy fills
+* copy row heights
+* copy column widths
+* copy styles
+
+The workbook already contains all formatting.
+
+The automation only manages formulas.
+
+---
+
+# Safety Rules
+
+The automation must never
+
+* modify row 2
+* delete rows
+* insert rows
+* delete columns
+* insert columns
+* touch columns outside Managed Columns
+* hardcode worksheet names
+* hardcode columns
+* hardcode row counts
+
+Everything must come from
+
+```
+pranay_extension_config
+```
+
+---
+
+# Architecture
+
+Please write this as a modular project.
+
+Suggested structure
+
+```
+excel_formula_extension/
+
+│
+├── main.py
+├── config_reader.py
+├── sheet_extender.py
+├── workbook_utils.py
+├── models.py
+└── requirements.txt
+```
+
+---
+
+# Code Quality
+
+I want production-quality code.
+
+Please
+
+* use type hints
+* use dataclasses where appropriate
+* separate responsibilities
+* avoid duplicated logic
+* write reusable functions
+* write descriptive variable names
+* add meaningful comments only where necessary
+* keep functions small
+* make the project easy to extend
+
+---
+
+# Future Scalability
+
+The design should allow adding a new worksheet simply by adding one new row to
+
+```
+pranay_extension_config
+```
+
+No Python code should need modification.
+
+The engine should work for any workbook that follows this configuration.
+
+---
+
+# Expected Outcome
+
+I want a generic Excel Formula Extension Engine that:
+
+* Reads the configuration sheet.
+* Asks the user for the number of materials.
+* Detects the previous material count from Sheet1.
+* Clears only the previously generated formulas (only in managed columns, only from row 3 onward, only if Preserve Existing is disabled).
+* Uses `openpyxl.formula.translate.Translator` to extend formulas exactly like Excel AutoFill.
+* Saves the workbook.
+* Never touches anything outside the configured managed columns.
+* Never modifies the template row (row 2).
+* Requires zero code changes when a new sheet is added to the configuration.

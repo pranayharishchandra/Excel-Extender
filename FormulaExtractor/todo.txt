@@ -1,0 +1,3 @@
+Make GUI for sheet fomulator - give option - (all in same sheet or differnt sheets)
+     - will have a progress bar
+     - text section where it will log
