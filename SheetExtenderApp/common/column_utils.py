@@ -1,20 +1,15 @@
-# Column conversions
-# Everything related to Excel columns lives in one place.
-
 """
-Utility functions for working with Excel columns.
+common/column_utils.py
 
-Examples
---------
-"B"         -> 2
-"AA"        -> 27
-"B,C,D,G"   -> [2,3,4,7]
-[2,3,4,7]   -> ["B","C","D","G"]
+Utility functions for working with Excel column letters and indexes.
+
+These helpers wrap openpyxl's utilities to provide consistent validation
+and conversion throughout the application.
 """
 
 from __future__ import annotations
 
-from typing import List
+from typing import Iterable, List
 
 from openpyxl.utils import (
     column_index_from_string,
@@ -22,118 +17,169 @@ from openpyxl.utils import (
 )
 
 
+def normalize_column_letter(column: str) -> str:
+    """
+    Normalize and validate an Excel column letter.
+
+    Args:
+        column:
+            Excel column letter.
+
+    Returns:
+        Uppercase Excel column letter.
+
+    Raises:
+        ValueError:
+            If the column is empty or invalid.
+    """
+    if column is None:
+        raise ValueError("Column cannot be None.")
+
+    column = str(column).strip().upper()
+
+    if not column:
+        raise ValueError("Column cannot be empty.")
+
+    try:
+        column_index_from_string(column)
+    except ValueError as exc:
+        raise ValueError(f"Invalid Excel column '{column}'.") from exc
+
+    return column
+
+
 def column_letter_to_index(column: str) -> int:
     """
     Convert an Excel column letter to a 1-based column index.
 
-    Example
-    -------
-    "A" -> 1
-    "B" -> 2
-    "AA" -> 27
+    Args:
+        column:
+            Excel column letter.
+
+    Returns:
+        1-based column index.
     """
-    return column_index_from_string(column.strip().upper())
+    return column_index_from_string(normalize_column_letter(column))
 
 
 def column_index_to_letter(index: int) -> str:
     """
-    Convert a 1-based column index into an Excel column letter.
+    Convert a 1-based column index to an Excel column letter.
 
-    Example
-    -------
-    1 -> "A"
-    2 -> "B"
-    27 -> "AA"
+    Args:
+        index:
+            1-based column index.
+
+    Returns:
+        Excel column letter.
+
+    Raises:
+        ValueError:
+            If the index is invalid.
     """
+    if index < 1:
+        raise ValueError("Column index must be greater than zero.")
+
     return get_column_letter(index)
 
 
-def parse_managed_columns(columns: str) -> List[int]:
+def normalize_column_list(columns: Iterable[str]) -> List[str]:
     """
-    Convert a comma-separated column string into a sorted list
-    of unique column indexes.
+    Normalize a collection of Excel column letters.
 
-    Example
-    -------
-    "B,C,D,G"
+    Invalid columns raise ValueError.
 
-    returns
+    Duplicate columns are removed while preserving order.
 
-    [2,3,4,7]
+    Args:
+        columns:
+            Iterable of Excel column letters.
+
+    Returns:
+        List of normalized column letters.
     """
+    normalized: List[str] = []
+    seen: set[str] = set()
 
-    if not columns.strip():
+    for column in columns:
+        letter = normalize_column_letter(column)
+
+        if letter not in seen:
+            normalized.append(letter)
+            seen.add(letter)
+
+    return normalized
+
+
+def parse_managed_columns(value: str, separator: str = ",") -> List[str]:
+    """
+    Parse the Managed Columns configuration value.
+
+    Example:
+        "B,D,E,G"
+            ->
+        ["B", "D", "E", "G"]
+
+    Args:
+        value:
+            Raw configuration cell value.
+
+        separator:
+            Column separator.
+
+    Returns:
+        List of normalized Excel column letters.
+    """
+    if value is None:
         return []
 
-    parsed = {
-        column_letter_to_index(col)
-        for col in columns.split(",")
-        if col.strip()
-    }
+    value = str(value).strip()
 
-    return sorted(parsed)
+    if not value:
+        return []
 
+    parts = [part.strip() for part in value.split(separator)]
 
-def managed_columns_to_string(columns: List[int]) -> str:
-    """
-    Convert column indexes back into a comma-separated string.
-
-    Example
-    -------
-    [2,3,4]
-
-    returns
-
-    "B,C,D"
-    """
-
-    return ",".join(
-        column_index_to_letter(col)
-        for col in sorted(columns)
-    )
+    return normalize_column_list(parts)
 
 
 def is_valid_column(column: str) -> bool:
     """
-    Returns True if the supplied Excel column is valid.
+    Returns whether a value is a valid Excel column letter.
 
-    Example
-    -------
-    "A"      -> True
-    "AB"     -> True
-    "123"    -> False
-    "A1"     -> False
+    Args:
+        column:
+            Excel column letter.
+
+    Returns:
+        True if valid, otherwise False.
     """
-
     try:
-        column_letter_to_index(column)
+        normalize_column_letter(column)
         return True
     except ValueError:
         return False
 
 
-def validate_managed_columns(columns: str) -> List[str]:
+def sort_columns(columns: Iterable[str]) -> List[str]:
     """
-    Validate a managed column string.
+    Sort Excel column letters into worksheet order.
 
-    Returns a list of validation errors.
-    Empty list means valid.
+    Example:
+        ["AA", "A", "C", "B"]
+            ->
+        ["A", "B", "C", "AA"]
+
+    Args:
+        columns:
+            Collection of Excel column letters.
+
+    Returns:
+        Sorted list of normalized column letters.
     """
+    normalized = normalize_column_list(columns)
 
-    errors: List[str] = []
-
-    if not columns.strip():
-        errors.append("Managed Columns cannot be empty.")
-        return errors
-
-    for column in columns.split(","):
-
-        column = column.strip()
-
-        if not column:
-            continue
-
-        if not is_valid_column(column):
-            errors.append(f"Invalid column '{column}'.")
-
-    return errors
+    return sorted(
+        normalized,
+        key=column_letter_to_index,
+    )

@@ -1,0 +1,390 @@
+We are going to implement a complete production-quality Python desktop application.
+
+IMPORTANT:
+
+This conversation is the OFFICIAL implementation conversation.
+
+DO NOT redesign the architecture.
+
+DO NOT suggest changing folders.
+
+DO NOT suggest moving files.
+
+DO NOT suggest new patterns.
+
+DO NOT continuously improve architecture.
+
+The architecture has already been finalized.
+
+Your job is ONLY to implement it.
+
+---------------------------------------------------------
+
+PROJECT
+
+Excel Formula Extension Engine
+
+Desktop application built using
+
+- Python
+- openpyxl
+- CustomTkinter
+
+Purpose:
+
+Automatically extend Excel formulas for SAP Material Creation templates.
+
+---------------------------------------------------------
+
+PROJECT RULES
+
+1.
+
+Generate production-quality code.
+
+No placeholders.
+
+No TODOs.
+
+No pseudo-code.
+
+Everything should be executable.
+
+---------------------------------------------------------
+
+2.
+
+Generate ONE file at a time.
+
+Do NOT generate multiple project files together unless I explicitly ask.
+
+---------------------------------------------------------
+
+3.
+
+Before generating a file,
+
+internally verify
+
+- imports
+- dependencies
+- class names
+- method names
+
+so the file is consistent with previous files.
+
+---------------------------------------------------------
+
+4.
+
+Once a file is complete,
+
+treat it as frozen.
+
+Do not later tell me
+
+"actually change this"
+
+unless it is fixing a bug.
+
+---------------------------------------------------------
+
+5.
+
+One file = one responsibility.
+
+Python files may become large.
+
+Do NOT split files just because they become long.
+
+Only split if I explicitly ask.
+
+---------------------------------------------------------
+
+6.
+
+The Excel workbook structure must NEVER change.
+
+Never
+
+- create worksheets
+- rename worksheets
+- split worksheets
+- merge worksheets
+
+Only
+
+- read formulas
+- clear formulas
+- extend formulas
+
+---------------------------------------------------------
+
+PROJECT STRUCTURE
+
+excel_formula_extension/
+
+│
+├── main.py
+├── requirements.txt
+├── README.md
+│
+├── assets/
+│
+├── gui/
+│   ├── app.py
+│   ├── dialogs.py
+│   ├── logger.py
+│   └── widgets.py
+│
+├── commands/
+│   ├── base_command.py
+│   ├── clear_command.py
+│   ├── extend_command.py
+│   └── clear_extend_command.py
+│
+├── core/
+│   └── formula_engine.py
+│
+├── services/
+│   ├── config_reader.py
+│   ├── formula_clearer.py
+│   ├── formula_extender.py
+│   ├── material_detector.py
+│   └── validator.py
+│
+├── common/
+│   ├── constants.py
+│   ├── column_utils.py
+│   └── excel_headers.py
+│
+├── interfaces/
+│   ├── logger.py
+│   └── progress.py
+│
+└── models/
+    ├── sheet_config.py
+    ├── sheet_context.py
+    ├── validation_result.py
+    ├── processing_result.py
+    └── workbook_info.py
+
+---------------------------------------------------------
+
+APPLICATION FLOW
+
+GUI
+
+↓
+
+Formula Engine
+
+↓
+
+Read Configuration
+
+↓
+
+Validate
+
+↓
+
+Detect Previous Materials
+
+↓
+
+Loop Selected Sheets
+
+↓
+
+Execute Command
+
+↓
+
+Save Workbook
+
+---------------------------------------------------------
+
+CONFIGURATION SHEET
+
+Worksheet name
+
+pranay_extension_config
+
+Headers are detected dynamically.
+
+No hardcoded column positions.
+
+Headers
+
+- Sheet Name
+- Template Start Row
+- Rows per Material
+- Managed Columns
+- Preserve Existing
+
+---------------------------------------------------------
+
+FORMULA RULES
+
+Always use
+
+openpyxl.formula.translate.Translator
+
+Never manually modify formulas.
+
+Never use regex.
+
+Never replace row numbers manually.
+
+Must behave exactly like Excel drag-fill.
+
+---------------------------------------------------------
+
+CLEAR RULES
+
+Only clear
+
+Managed Columns
+
+Template Row + 1
+
+↓
+
+Old Last Row
+
+Never clear template row.
+
+Never touch unmanaged columns.
+
+---------------------------------------------------------
+
+EXTEND RULES
+
+Generate formulas from
+
+Template Row + 1
+
+↓
+
+New Last Row
+
+using Translator.
+
+---------------------------------------------------------
+
+OUTPUT
+
+User chooses
+
+Save Original
+
+or
+
+Save As
+
+Default Save As location
+
+=
+
+same folder as selected workbook.
+
+---------------------------------------------------------
+
+GUI
+
+Workbook Selector
+
+Previous Material Count
+
+New Material Count
+
+Sheet Selector
+
+Select All
+
+Select None
+
+Output Selector
+
+Actions
+
+Clear
+
+Extend
+
+Clear + Extend
+
+Progress Bar
+
+Current Sheet
+
+Scrolling Log Console
+
+---------------------------------------------------------
+
+CODING STYLE
+
+Use
+
+- dataclasses
+- type hints
+- meaningful names
+- small methods
+- clear docstrings
+
+Avoid duplicated logic.
+
+Keep responsibilities separated.
+
+---------------------------------------------------------
+
+MOST IMPORTANT RULE
+
+Do NOT redesign the project.
+
+Do NOT suggest better architecture.
+
+Do NOT continuously refactor.
+
+Assume the architecture is already approved.
+
+Your only job is to implement the project correctly.
+
+---------------------------------------------------------
+
+Implementation Order
+
+1.
+models/
+
+2.
+common/
+
+3.
+interfaces/
+
+4.
+services/
+
+5.
+commands/
+
+6.
+core/
+
+7.
+gui/
+
+8.
+main.py
+
+---------------------------------------------------------
+
+We will build this project one file at a time.
+
+After every generated file, assume it is committed to Git.
+
+Do not change it later unless there is a genuine bug.
+
+Start by listing the implementation order with checkboxes, then wait for me to tell you the first file.

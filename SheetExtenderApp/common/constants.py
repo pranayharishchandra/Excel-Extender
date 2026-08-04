@@ -1,110 +1,129 @@
 """
-Application-wide constants.
+common/constants.py
 
-Avoid hardcoding strings and numbers throughout the project.
+Application-wide constants used throughout the Excel Formula
+Extension Engine.
 """
+
+from __future__ import annotations
 
 from pathlib import Path
 
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Application
-# ============================================================================
+# ---------------------------------------------------------------------------
 
-APP_NAME = "Excel Formula Extension Engine"
-APP_VERSION = "1.0.0"
+APPLICATION_NAME: str = "Excel Formula Extension Engine"
+APPLICATION_VERSION: str = "1.0.0"
 
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Workbook Configuration
-# ============================================================================
+# ---------------------------------------------------------------------------
 
-CONFIG_SHEET_NAME = "pranay_extension_config"
-SOURCE_SHEET_NAME = "Sheet1"
+CONFIG_SHEET_NAME: str = "pranay_extension_config"
 
-# ============================================================================
-# Template Defaults
-# ============================================================================
+# ---------------------------------------------------------------------------
+# Configuration Headers
+# ---------------------------------------------------------------------------
 
-DEFAULT_TEMPLATE_START_ROW = 2
-FIRST_GENERATED_ROW = 3
-HEADER_ROW = 1
+HEADER_SHEET_NAME: str = "Sheet Name"
+HEADER_TEMPLATE_START_ROW: str = "Template Start Row"
+HEADER_ROWS_PER_MATERIAL: str = "Rows per Material"
+HEADER_MANAGED_COLUMNS: str = "Managed Columns"
+HEADER_PRESERVE_EXISTING: str = "Preserve Existing"
 
-# ============================================================================
-# GUI
-# ============================================================================
+CONFIG_REQUIRED_HEADERS: tuple[str, ...] = (
+    HEADER_SHEET_NAME,
+    HEADER_TEMPLATE_START_ROW,
+    HEADER_ROWS_PER_MATERIAL,
+    HEADER_MANAGED_COLUMNS,
+    HEADER_PRESERVE_EXISTING,
+)
 
-WINDOW_WIDTH = 1000
-WINDOW_HEIGHT = 750
+# ---------------------------------------------------------------------------
+# Worksheet Processing
+# ---------------------------------------------------------------------------
 
-LOG_TIME_FORMAT = "%H:%M:%S"
+FIRST_WORKSHEET_ROW: int = 1
+FIRST_EXCEL_COLUMN: int = 1
 
-# ============================================================================
-# File Types
-# ============================================================================
+# ---------------------------------------------------------------------------
+# Supported Workbook Formats
+# ---------------------------------------------------------------------------
 
-EXCEL_FILE_TYPES = [
+SUPPORTED_WORKBOOK_EXTENSIONS: frozenset[str] = frozenset(
+    {
+        ".xlsx",
+        ".xlsm",
+    }
+)
+
+# ---------------------------------------------------------------------------
+# File Dialog Filters
+# ---------------------------------------------------------------------------
+
+WORKBOOK_FILE_TYPES: tuple[tuple[str, str], ...] = (
     ("Excel Workbook", "*.xlsx"),
-    ("Excel Macro Workbook", "*.xlsm"),
-    ("All Files", "*.*"),
-]
+    ("Excel Macro-Enabled Workbook", "*.xlsm"),
+    ("All Excel Files", "*.xlsx *.xlsm"),
+)
 
-DEFAULT_OUTPUT_SUFFIX = "_Extended"
+# ---------------------------------------------------------------------------
+# Output
+# ---------------------------------------------------------------------------
 
-# ============================================================================
-# Configuration Columns
-# ============================================================================
+DEFAULT_SAVE_AS_SUFFIX: str = "_extended"
 
-CONFIG_COLUMN_SHEET_NAME = 1
-CONFIG_COLUMN_TEMPLATE_ROW = 2
-CONFIG_COLUMN_ROWS_PER_MATERIAL = 3
-CONFIG_COLUMN_MANAGED_COLUMNS = 4
-CONFIG_COLUMN_PRESERVE_EXISTING = 5
+# ---------------------------------------------------------------------------
+# GUI Defaults
+# ---------------------------------------------------------------------------
 
-CONFIG_FIRST_DATA_ROW = 2
+DEFAULT_WINDOW_WIDTH: int = 1100
+DEFAULT_WINDOW_HEIGHT: int = 760
+MIN_WINDOW_WIDTH: int = 900
+MIN_WINDOW_HEIGHT: int = 650
 
-# ============================================================================
-# Sheet1 Material Detection
-# ============================================================================
+PROGRESS_MINIMUM: int = 0
+PROGRESS_MAXIMUM: int = 100
 
-# Column containing material numbers in Sheet1.
-# Can be made configurable in the future if needed.
-MATERIAL_COLUMN = 2  # Column B
-
-# ============================================================================
+# ---------------------------------------------------------------------------
 # Logging
-# ============================================================================
+# ---------------------------------------------------------------------------
 
-LOG_INFO = "INFO"
-LOG_SUCCESS = "SUCCESS"
-LOG_WARNING = "WARNING"
-LOG_ERROR = "ERROR"
+LOG_TIME_FORMAT: str = "%H:%M:%S"
 
-# ============================================================================
-# Actions
-# ============================================================================
+# ---------------------------------------------------------------------------
+# Boolean Values Accepted in Configuration
+# ---------------------------------------------------------------------------
 
-ACTION_CLEAR = "CLEAR"
-ACTION_EXTEND = "EXTEND"
-ACTION_CLEAR_AND_EXTEND = "CLEAR_AND_EXTEND"
+TRUE_VALUES: frozenset[str] = frozenset(
+    {
+        "1",
+        "TRUE",
+        "YES",
+        "Y",
+    }
+)
 
-# ============================================================================
+FALSE_VALUES: frozenset[str] = frozenset(
+    {
+        "0",
+        "FALSE",
+        "NO",
+        "N",
+        "",
+    }
+)
+
+# ---------------------------------------------------------------------------
+# Managed Columns
+# ---------------------------------------------------------------------------
+
+MANAGED_COLUMN_SEPARATOR: str = ","
+
+# ---------------------------------------------------------------------------
 # Paths
-# ============================================================================
+# ---------------------------------------------------------------------------
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ASSETS_DIR = PROJECT_ROOT / "assets"
-
-
-# ============================================================================
-# Configuration Sheet
-# ============================================================================
-
-CONFIG_SHEET_NAME = "pranay_extension_config"
-
-HEADER_SHEET_NAME = "Sheet Name"
-HEADER_TEMPLATE_ROW = "Template Start Row"
-HEADER_ROWS_PER_MATERIAL = "Rows per Material"
-HEADER_MANAGED_COLUMNS = "Managed Columns"
-HEADER_PRESERVE_EXISTING = "Preserve Existing"
-
-CONFIG_HEADER_ROW = 1
-CONFIG_FIRST_DATA_ROW = 2
+PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
+ASSETS_DIRECTORY: Path = PROJECT_ROOT / "assets"
