@@ -81,13 +81,19 @@ class FormulaExtensionEngine:
 
                 self.log_callback(f"{sheet_name} Completed")
 
+            # --- CRITICAL FIXES FOR EXCEL REPAIR WARNINGS ---
+            
+            # Remove stale calculation chain to eliminate repair prompts on open
+            if hasattr(wb, '_calc_chain') and wb._calc_chain is not None:
+                wb._calc_chain = None
+            
+            # Force Excel to perform a full formula recalculation on startup
+            if hasattr(wb, 'calculation'):
+                wb.calculation.calcMode = 'auto'
+                wb.calculation.fullCalcOnLoad = True
+
             self.progress_callback(0.9, "Saving...")
             self.log_callback("Saving Workbook...")
-
-            # Force Excel to rebuild the calculation chain on next load
-            if wb.calculation:
-                wb.calculation.calcMode = 'auto'
-                
             wb.save(self.output_path)
             
             self.progress_callback(1.0, "Done")

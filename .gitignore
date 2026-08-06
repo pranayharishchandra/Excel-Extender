@@ -117,3 +117,11 @@ config.local.json
 *.temp
 *.bak
 *.swp
+
+
+
+
+
+=========
+*.xlsx
+.xlsx
