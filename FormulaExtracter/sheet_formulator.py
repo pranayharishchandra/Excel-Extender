@@ -12,6 +12,7 @@ for ws in wb.worksheets:
     for row in ws.iter_rows():
         for cell in row:
             new_ws[cell.coordinate] = str(cell.value)
+            
 
     new_wb.save(f"{ws.title}_Formulas.xlsx")
     print(f"Created {ws.title}_Formulas.xlsx")
