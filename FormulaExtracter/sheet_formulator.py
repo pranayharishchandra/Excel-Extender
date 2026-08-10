@@ -1,6 +1,6 @@
 from openpyxl import load_workbook, Workbook
 
-file_path = r"C:\Users\PranayHarishchandra\Desktop\Excel Extender\FormulaExtracter\BFR Local Code.xlsx"
+file_path = r"C:\Users\PranayHarishchandra\Desktop\Excel Extender\FormulaExtracter\Pranay Master carton all plants.xlsx"
 
 wb = load_workbook(file_path, data_only=False)
 
@@ -12,7 +12,8 @@ for ws in wb.worksheets:
     for row in ws.iter_rows():
         for cell in row:
             new_ws[cell.coordinate] = str(cell.value)
-            
+
+
 
     new_wb.save(f"{ws.title}_Formulas.xlsx")
     print(f"Created {ws.title}_Formulas.xlsx")

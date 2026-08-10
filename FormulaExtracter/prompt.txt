@@ -1,0 +1,22 @@
+i want to extend the sheet to 200+ materials
+for that i want draggable formula
+i have a excel file that have many sheets 
+i will give u each sheet one by one
+and will tell u how many entries are per materials
+and you will have to understand the pattern for the material
+
+same pattern will be repeated for the next material also
+
+---
+
+also note that row 1 is always header
+so every formula u will give me
+give from row 2
+
+---
+
+u have to give me draggable formula
+that should be like 
+Example:
+dont' give me like: R2 = SV;
+give me like: R2 ="SV"
