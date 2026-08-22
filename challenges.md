@@ -22,4 +22,3 @@ Preserve Existing	Managed Columns	Sheet Name	Rows per Material	Template Start Ro
 Nothing breaks.
 
 The engine finds the headers automatically.
-
