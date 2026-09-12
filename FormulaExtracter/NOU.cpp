@@ -4,7 +4,7 @@ using namespace std;
 class Solution {
 public:
     // Function to perform BFS traversal
-    void bfs(int row, int col, vector<vector<int>> &vis, vector<vector<char>> &grid) {
+    void bfs(int row, int col, vector<vector<int>> &vis, vector<vector<char>> &grid, int targetColor) {
         // Create a queue to store coordinates
         queue<pair<int, int>> q;
         // Push starting cell to queue
@@ -33,7 +33,9 @@ public:
                 // Check bounds and unvisited land
                 if (nrow >= 0 && nrow < grid.size() &&
                     ncol >= 0 && ncol < grid[0].size() &&
-                    !vis[nrow][ncol] && grid[nrow][ncol] == '1') {
+                    !vis[nrow][ncol] && 
+                    // grid[nrow][ncol] == '1' &&
+                    grid[r][c] == targetColor) {
                     
                     // Mark as visited and push to queue
                     vis[nrow][ncol] = 1;
@@ -44,13 +46,15 @@ public:
     }
 
     // Function to count number of islands
-    int numIslands(vector<vector<char>>& grid) {
+    int numIslands(vector<vector<char>>& grid, int sr, int sc) {
         // Get grid dimensions
         int n = grid.size();
         int m = grid[0].size();
 
         // Create visited matrix
         vector<vector<int>> vis(n, vector<int>(m, 0));
+
+        int targetColor = grid[sr][sc];
 
         // Counter for islands
         int count = 0;
@@ -63,7 +67,7 @@ public:
                     // Increment island count
                     count++;
                     // Call BFS
-                    bfs(i, j, vis, grid);
+                    bfs(i, j, vis, grid, targetColor);
                 }
             }
         }
