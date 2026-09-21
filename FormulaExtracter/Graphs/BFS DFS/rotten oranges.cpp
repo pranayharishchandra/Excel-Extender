@@ -3,8 +3,6 @@ using namespace std;
 
 // Function to calculate minimum time required to rot all fresh oranges
 int orangesRotting(vector<vector<int>>& grid) {
-
-    
     
     // If the grid is empty, return 0 as no oranges exist
     if (grid.empty()) return 0;
