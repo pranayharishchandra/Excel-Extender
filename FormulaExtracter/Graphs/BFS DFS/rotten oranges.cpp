@@ -23,6 +23,8 @@ int orangesRotting(vector<vector<int>>& grid) {
     // Queue to store positions of currently rotten oranges
     queue<pair<int, int>> rotten;
 
+    
+
     // Traverse the grid to count total oranges and push rotten ones to the queue
     for (int i = 0; i < m; ++i) {
         for (int j = 0; j < n; ++j) {
